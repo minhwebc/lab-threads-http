@@ -22,18 +22,21 @@ public class MovieDownloader {
 
 		//construct the url for the omdbapi API
 		String urlString = "";
-		try {
+		try { //try catch here to see if the users entering characters that cannot be UTF-8 encoded. If 
+			  //they tried to do that, the method will just return null for the catch 
 			urlString = "http://www.omdbapi.com/?s=" + URLEncoder.encode(movie, "UTF-8") + "&type=movie";
 		}catch(UnsupportedEncodingException uee){
 			return null;
 		}
 
-		HttpURLConnection urlConnection = null;
-		BufferedReader reader = null;
+		HttpURLConnection urlConnection = null; //will be use to make an api request for the movies found
+		BufferedReader reader = null; //will be use to read back the input stream from the http request
 
 		String[] movies = null;
 
-		try {
+		try { //because we are dealing with a lot of stream reader and text reader, this whole block of code is put into a try/catch
+		      //so that in the process of requesting or reading the input stream, there are any error occured, we want pur code to 
+			  //continue executing safely without carshing the program 
 
 			URL url = new URL(urlString);
 
@@ -41,15 +44,16 @@ public class MovieDownloader {
 			urlConnection.setRequestMethod("GET");
 			urlConnection.connect();
 
-			InputStream inputStream = urlConnection.getInputStream();
+			InputStream inputStream = urlConnection.getInputStream(); //this is the response of the request
 			StringBuffer buffer = new StringBuffer();
 			if (inputStream == null) {
-				return null;
+				return null; //if no repsonse comming back from the sever then just return
 			}
-			reader = new BufferedReader(new InputStreamReader(inputStream));
+			reader = new BufferedReader(new InputStreamReader(inputStream)); 
+			//pass in the input stream of the response into the bufferedreader to read it
 
-			String line = reader.readLine();
-			while (line != null) {
+			String line = reader.readLine(); //read first line of the response
+			while (line != null) { //keep reading until there are none left
 				buffer.append(line + "\n");
 				line = reader.readLine();
 			}
@@ -64,15 +68,15 @@ public class MovieDownloader {
 
 			movies = results.split("\n");
 		} 
-		catch (IOException e) {
+		catch (IOException e) { //if error return
 			return null;
 		} 
-		finally {
-			if (urlConnection != null) {
+		finally { //finishing off the remaining process by closing connection and close out reader
+			if (urlConnection != null) { af
 				urlConnection.disconnect();
 			}
 			if (reader != null) {
-				try {
+				try { //try catch here may mean that if the reader is still being use and can't be closed?
 					reader.close();
 				} 
 				catch (IOException e) {
